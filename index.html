@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .browser-bar {
+            background: linear-gradient(to right, #1f2937, #111827);
+            color: white;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 12px 12px 0 0;
+        }
+        .result-card {
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        .subject-row {
+            transition: all 0.2s;
+        }
+    </style>
+</head>
+<body class="bg-[#e0f2fe] min-h-screen pb-12">
+    <!-- Browser-like header -->
+    <div class="max-w-md mx-auto mt-4">
+        <div class="browser-bar text-sm">
+            <i class="fas fa-lock text-green-400"></i>
+            <span class="flex-1 text-center truncate">yourcollege.uonex.in/ResultSheet</span>
+            <i class="fas fa-plus"></i>
+            <div class="w-6 h-6 bg-white text-black rounded-full flex items-center justify-center text-xs font-bold">8</div>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-3xl overflow-hidden result-card">
+            
+            <!-- Tabs -->
+            <div class="flex border-b">
+                <button onclick="switchTab(0)" id="tab-0"
+                        class="flex-1 py-4 text-center font-semibold text-[#1e3a8a] border-b-2 border-[#1e3a8a] tab-active">
+                    VIEW RESULTS
+                </button>
+                <button onclick="switchTab(1)" id="tab-1"
+                        class="flex-1 py-4 text-center font-semibold text-gray-500 hover:text-[#1e3a8a]">
+                    ENTER RESULTS
+                </button>
+            </div>
+
+            <!-- VIEW RESULTS TAB -->
+            <div id="view-tab" class="p-6">
+                <h1 class="text-2xl font-bold text-[#1e3a8a] mb-6">STUDENTS RESULT SUMMARY</h1>
+                
+                <div class="space-y-5">
+                    <!-- Roll No -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">RollNo <span class="text-red-500">*</span></label>
+                        <input id="rollno" type="text" placeholder="Enter Roll Number" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1e3a8a] text-base">
+                    </div>
+
+                    <!-- Semester -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Semester <span class="text-red-500">*</span></label>
+                        <select id="semester" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1e3a8a] text-base">
+                            <option value="">-- Select Semester --</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+
+                    <!-- Date of Birth -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth <span class="text-red-500">*</span></label>
+                        <input id="dob" type="date" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1e3a8a] text-base">
+                    </div>
+
+                    <!-- View Button -->
+                    <button onclick="viewResult()" 
+                            class="w-full bg-[#1e40af] hover:bg-[#1e3a8a] text-white font-semibold py-4 rounded-2xl text-lg flex items-center justify-center gap-2 mt-4 shadow-lg">
+                        <i class="fas fa-search"></i>
+                        VIEW RESULT
+                    </button>
+                </div>
+
+                <!-- Results Display Area (appears after clicking View) -->
+                <div id="result-display" class="hidden mt-8 border-t pt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Roll No</p>
+                            <p id="display-roll" class="font-bold text-xl"></p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Semester</p>
+                            <p id="display-sem" class="font-bold text-xl"></p>
+                        </div>
+                    </div>
+
+                    <div class="bg-[#f8fafc] rounded-2xl p-5 mb-6">
+                        <h3 class="font-semibold mb-3 text-[#1e3a8a]">SUBJECT-WISE RESULT</h3>
+                        <div id="subjects-list" class="space-y-3"></div>
+                    </div>
+
+                    <div id="overall-status" class="text-center py-3 px-6 rounded-2xl font-semibold text-lg"></div>
+                </div>
+            </div>
+
+            <!-- ENTER RESULTS TAB -->
+            <div id="enter-tab" class="p-6 hidden">
+                <h1 class="text-2xl font-bold text-[#1e3a8a] mb-6">ENTER NEW RESULTS</h1>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Student RollNo <span class="text-red-500">*</span></label>
+                        <input id="enter-rollno" type="text" placeholder="e.g. 2023BCA045" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1e3a8a]">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Semester <span class="text-red-500">*</span></label>
+                        <select id="enter-semester" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-[#1e3a8a]">
+                            <option value="">-- Select Semester --</option>
+                            <option value="1">Semester 1</option>
+                            <option value="2">Semester 2</option>
+                            <option value="3">Semester 3</option>
+                            <option value="4">Semester 4</option>
+                            <option value="5">Semester 5</option>
+                            <option value="6">Semester 6</option>
+                            <option value="7">Semester 7</option>
+                            <option value="8">Semester 8</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamic Subjects -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Subjects &amp; Pass/Fail</label>
+                        <div id="subjects-container" class="space-y-3"></div>
+                        
+                        <button onclick="addSubjectField()" 
+                                class="text-[#1e3a8a] flex items-center gap-2 text-sm font-medium mt-3 hover:underline">
+                            <i class="fas fa-plus-circle"></i> ADD ANOTHER SUBJECT
+                        </button>
+                    </div>
+
+                    <button onclick="saveStudentResult()" 
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-4 rounded-2xl text-lg flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i>
+                        SAVE RESULT
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer note -->
+        <p class="text-center text-xs text-gray-400 mt-6">Demo Student Result Portal • Data saved in browser only</p>
+    </div>
+
+    <script>
+        // Tailwind script already loaded
+        function switchTab(n) {
+            document.getElementById('view-tab').classList.add('hidden')
+            document.getElementById('enter-tab').classList.add('hidden')
+            document.getElementById(`tab-${n}`).classList.add('border-b-2', 'border-[#1e3a8a]', 'text-[#1e3a8a]')
+            document.getElementById(`tab-${1-n}`).classList.remove('border-b-2', 'border-[#1e3a8a]', 'text-[#1e3a8a]')
+            
+            if (n === 0) document.getElementById('view-tab').classList.remove('hidden')
+            else document.getElementById('enter-tab').classList.remove('hidden')
+        }
+
+        // Sample data (pre-loaded)
+        let resultsDB = JSON.parse(localStorage.getItem('studentResults')) || {
+            "2023BCA045": {
+                "1": {
+                    subjects: [
+                        {name: "Mathematics", status: "Pass"},
+                        {name: "Physics", status: "Pass"},
+                        {name: "Chemistry", status: "Fail"},
+                        {name: "English", status: "Pass"}
+                    ]
+                },
+                "2": {
+                    subjects: [
+                        {name: "Data Structures", status: "Pass"},
+                        {name: "Programming", status: "Pass"},
+                        {name: "Database", status: "Pass"}
+                    ]
+                }
+            }
+        }
+
+        function addSubjectField() {
+            const container = document.getElementById('subjects-container')
+            const div = document.createElement('div')
+            div.className = 'subject-row flex gap-3 items-center bg-gray-50 p-3 rounded-xl'
+            div.innerHTML = `
+                <input type="text" placeholder="Subject Name" 
+                       class="flex-1 px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#1e3a8a]">
+                <select class="px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#1e3a8a]">
+                    <option value="Pass">Pass</option>
+                    <option value="Fail">Fail</option>
+                </select>
+                <button onclick="this.parentElement.remove()" class="text-red-500 hover:text-red-600">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `
+            container.appendChild(div)
+        }
+
+        function saveStudentResult() {
+            const roll = document.getElementById('enter-rollno').value.trim()
+            const sem = document.getElementById('enter-semester').value
+            
+            if (!roll || !sem) {
+                alert("Please enter RollNo and Semester")
+                return
+            }
+
+            const subjectRows = document.querySelectorAll('#subjects-container > div')
+            const subjects = []
+            
+            subjectRows.forEach(row => {
+                const nameInput = row.querySelector('input')
+                const statusSelect = row.querySelector('select')
+                if (nameInput && nameInput.value.trim()) {
+                    subjects.push({
+                        name: nameInput.value.trim(),
+                        status: statusSelect.value
+                    })
+                }
+            })
+
+            if (subjects.length === 0) {
+                alert("Add at least one subject")
+                return
+            }
+
+            // Save to DB
+            if (!resultsDB[roll]) resultsDB[roll] = {}
+            resultsDB[roll][sem] = { subjects: subjects }
+            localStorage.setItem('studentResults', JSON.stringify(resultsDB))
+
+            // Clear form
+            document.getElementById('enter-rollno').value = ''
+            document.getElementById('enter-semester').value = ''
+            document.getElementById('subjects-container').innerHTML = ''
+            
+            alert(`✅ Result for RollNo ${roll} - Semester ${sem} saved successfully!`)
+            
+            // Switch back to View tab
+            switchTab(0)
+        }
+
+        function viewResult() {
+            const roll = document.getElementById('rollno').value.trim()
+            const sem = document.getElementById('semester').value
+            const dob = document.getElementById('dob').value
+
+            const display = document.getElementById('result-display')
+            
+            if (!roll || !sem) {
+                alert("Please fill RollNo and Semester")
+                return
+            }
+
+            // Find result
+            const studentData = resultsDB[roll]
+            if (!studentData || !studentData[sem]) {
+                display.classList.add('hidden')
+                alert("No result found for this RollNo & Semester.\n\nTry entering some data in the 'ENTER RESULTS' tab first!")
+                return
+            }
+
+            // Show results
+            display.classList.remove('hidden')
+            document.getElementById('display-roll').textContent = roll
+            document.getElementById('display-sem').textContent = `Semester ${sem}`
+
+            const listHTML = studentData[sem].subjects.map(sub => `
+                <div class="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm">
+                    <span class="font-medium">${sub.name}</span>
+                    <span class="px-5 py-1 rounded-3xl text-sm font-semibold ${sub.status === 'Pass' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                        ${sub.status}
+                    </span>
+                </div>
+            `).join('')
+
+            document.getElementById('subjects-list').innerHTML = listHTML
+
+            // Overall status
+            const passed = studentData[sem].subjects.filter(s => s.status === 'Pass').length
+            const total = studentData[sem].subjects.length
+            const overall = passed === total ? 
+                `<span class="text-emerald-600">🎉 PASSED ALL SUBJECTS</span>` : 
+                `<span class="text-red-600">⚠️ FAILED IN \( {total - passed} SUBJECT \){total - passed > 1 ? 'S' : ''}</span>`
+            
+            document.getElementById('overall-status').innerHTML = overall
+        }
+
+        // Add one subject field by default when entering
+        window.onload = () => {
+            // Pre-load one subject field
+            setTimeout(() => {
+                if (document.getElementById('subjects-container').children.length === 0) {
+                    addSubjectField()
+                }
+            }, 800)
+            
+            console.log('%c✅ Student Result Portal ready! Enter data in second tab and view in first tab.', 'color:#1e3a8a; font-size:13px')
+        }
+    </script>
+</body>
+</html>
